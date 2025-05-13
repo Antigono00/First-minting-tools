@@ -2454,18 +2454,21 @@ def get_mint_egg_manifest():
                 'timestamp': int(time.time())
             }
             
-            # Create the backend mint manifest using the dapp definition address
-            # Following the proxy authentication pattern for DApp integration
+            # Create the backend mint manifest using the DApp Toolkit pattern
+            # The key change is removing the explicit parameters to backend_mint_egg
             manifest = f"""
 CALL_METHOD
     Address("{DAPP_DEFINITION_ADDRESS}")
     "create_proof_of_amount"
     Address("{BACKEND_BADGE}")
     Decimal("1");
+CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL
+    Address("{BACKEND_BADGE}")
+    Proof("backend_proof");
 CALL_METHOD
     Address("{COMPONENT_ADDRESS}")
     "backend_mint_egg"
-    None
+    Proof("backend_proof")
     None;
 DROP_ALL_PROOFS;
 CALL_METHOD
@@ -2540,12 +2543,11 @@ def get_user_nfts():
         # NFT resource address for Evolving Creatures
         CREATURE_NFT_RESOURCE = "resource_rdx1n2rt6ygucac2me5jada3mluyf5f58ezhx06k6qlvasav0q0ece5svd"
         
-        # Call the Radix Gateway API to get NFT IDs
-        url = "https://mainnet.radixdlt.com/state/entity/page/non-fungible-vault/ids"
+        # Call the Radix Gateway API to get NFT vaults
+        url = "https://mainnet.radixdlt.com/state/entity/page/non-fungible-vaults"
         payload = {
             "address": account_address,
-            "resource_address": CREATURE_NFT_RESOURCE,
-            "limit_per_page": 100  # Adjust based on expected number of NFTs
+            "resource_address": CREATURE_NFT_RESOURCE
         }
         
         headers = {
@@ -2553,16 +2555,33 @@ def get_user_nfts():
             'User-Agent': 'CorvaxLab Game/1.0'
         }
         
-        print(f"Calling Gateway API to fetch NFT IDs")
+        print(f"Calling Gateway API to fetch NFT vaults")
         response = requests.post(url, json=payload, headers=headers, timeout=15)
         
         if response.status_code != 200:
             print(f"Gateway API error: Status {response.status_code}")
             print(f"Response: {response.text[:200]}...")
-            return jsonify({"error": f"Failed to fetch NFT IDs: HTTP {response.status_code}"}), 500
+            return jsonify({"error": f"Failed to fetch NFT vaults: HTTP {response.status_code}"}), 500
         
-        nft_ids_data = response.json()
-        nft_ids = nft_ids_data.get('items', [])
+        vaults_data = response.json()
+        
+        # Extract non-fungible IDs from the vaults
+        nft_ids = []
+        for item in vaults_data.get('items', []):
+            if 'vault_address' in item:
+                # Now fetch the IDs for this vault
+                vault_url = "https://mainnet.radixdlt.com/state/entity/page/non-fungible-vault/ids"
+                vault_payload = {
+                    "address": account_address,
+                    "resource_address": CREATURE_NFT_RESOURCE,
+                    "vault_address": item.get('vault_address')
+                }
+                
+                vault_response = requests.post(vault_url, json=vault_payload, headers=headers, timeout=15)
+                
+                if vault_response.status_code == 200:
+                    ids_data = vault_response.json()
+                    nft_ids.extend(ids_data.get('items', []))
         
         print(f"Found {len(nft_ids)} NFT IDs")
         
@@ -2590,11 +2609,31 @@ def get_user_nfts():
         
         nft_data = response.json()
         
+        # Log the full API response to see the structure
+        print("Full NFT data response structure:")
+        print(json.dumps(nft_data, indent=2)[:1000] + "...")  # Limit output size
+        
         # Process NFT data for frontend display
         processed_nfts = []
         for nft in nft_data.get('non_fungible_ids', []):
             nft_id = nft.get('non_fungible_id')
-            data = nft.get('data', {})
+            # The data field contains the actual NFT metadata
+            raw_data = nft.get('data', {})
+            
+            # Check if raw_data is a string (JSON) and parse it if needed
+            if isinstance(raw_data, str):
+                try:
+                    parsed_data = json.loads(raw_data)
+                    data = parsed_data
+                except:
+                    data = raw_data
+            else:
+                data = raw_data
+            
+            # Debug log the extracted data
+            print(f"NFT ID: {nft_id}")
+            print(f"Raw data type: {type(data)}")
+            print(f"Raw data: {json.dumps(data, indent=2)[:500]}...")
             
             # Process the data according to NFT schema
             processed_nft = {
@@ -2603,6 +2642,7 @@ def get_user_nfts():
                 "species_name": data.get('species_name'),
                 "form": data.get('form'),
                 "image_url": data.get('image_url'),
+                "key_image_url": data.get('key_image_url'),
                 "rarity": data.get('rarity'),
                 "stats": data.get('stats', {}),
                 "evolution_progress": data.get('evolution_progress', {}),
@@ -2663,14 +2703,31 @@ def get_nft_details():
         
         nft_data = response.json()
         
+        # Log the entire response for debugging
+        print("Full NFT details response:")
+        print(json.dumps(nft_data, indent=2)[:1000] + "...")
+        
         if not nft_data.get('non_fungible_ids'):
             return jsonify({"error": "NFT not found"}), 404
         
-        # Process NFT data
+        # Get the first (and only) NFT from the response
         nft = nft_data.get('non_fungible_ids', [])[0]
-        data = nft.get('data', {})
+        raw_data = nft.get('data', {})
         
-        # Return detailed NFT data
+        # Check if raw_data is a string (JSON) and parse it if needed
+        if isinstance(raw_data, str):
+            try:
+                parsed_data = json.loads(raw_data)
+                data = parsed_data
+            except:
+                data = raw_data
+        else:
+            data = raw_data
+            
+        print(f"Parsed NFT data type: {type(data)}")
+        print(f"Parsed NFT data: {json.dumps(data, indent=2)[:500]}...")
+        
+        # Extract all fields from the NFT data
         nft_details = {
             "id": nft.get('non_fungible_id'),
             "species_id": data.get('species_id'),
