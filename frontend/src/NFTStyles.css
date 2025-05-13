@@ -1,0 +1,51 @@
+/* src/styles/NFTStyles.css */
+
+.machine-button.nft-button {
+  background: linear-gradient(135deg, #FF3D00 0%, #FF9E80 100%);
+  border: 2px solid #FFD600;
+  box-shadow: 0 4px 8px rgba(255, 61, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.machine-button.nft-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 61, 0, 0.4);
+  border: 2px solid #FFF176;
+}
+
+.info-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.info-icon {
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  padding: 0px 8px;
+  margin-right: 5px;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  width: 280px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -140px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.info-tooltip:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}

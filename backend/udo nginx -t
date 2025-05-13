@@ -1,0 +1,26 @@
+[0;1;32m●[0m nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (]8;;file://test-network/usr/lib/systemd/system/nginx.service/usr/lib/systemd/system/nginx.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Tue 2025-03-04 15:09:56 UTC; 3 days ago
+ Invocation: 4987eb0f06bf4c20a1b3eea228a7cacd
+       Docs: ]8;;man:nginx(8)man:nginx(8)]8;;
+    Process: 626285 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 626286 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 649676 ExecReload=/usr/sbin/nginx -g daemon on; master_process on; -s reload (code=exited, status=0/SUCCESS)
+   Main PID: 626288 (nginx)
+      Tasks: 2 (limit: 1109)
+     Memory: 4.7M (peak: 9.7M)
+        CPU: 3.123s
+     CGroup: /system.slice/nginx.service
+             ├─[0;38;5;245m626288 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"[0m
+             └─[0;38;5;245m678811 "nginx: worker process"[0m
+
+Mar 04 15:17:44 test-network systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+Mar 04 15:17:44 test-network nginx[626464]: 2025/03/04 15:17:44 [warn] 626464#626464: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/sites-enabled/test.conf:53
+Mar 04 15:17:44 test-network nginx[626464]: 2025/03/04 15:17:44 [warn] 626464#626464: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/sites-enabled/test.conf:54
+Mar 04 15:17:44 test-network nginx[626464]: 2025/03/04 15:17:44 [notice] 626464#626464: signal process started
+Mar 04 15:17:44 test-network systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+Mar 05 14:08:11 test-network systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+Mar 05 14:08:11 test-network nginx[649676]: 2025/03/05 14:08:11 [warn] 649676#649676: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/sites-enabled/test.conf:53
+Mar 05 14:08:11 test-network nginx[649676]: 2025/03/05 14:08:11 [warn] 649676#649676: the "listen ... http2" directive is deprecated, use the "http2" directive instead in /etc/nginx/sites-enabled/test.conf:54
+Mar 05 14:08:11 test-network nginx[649676]: 2025/03/05 14:08:11 [notice] 649676#649676: signal process started
+Mar 05 14:08:11 test-network systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.

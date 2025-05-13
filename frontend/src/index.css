@@ -1,0 +1,1270 @@
+:root {
+  --primary-color: #4CAF50;
+  --primary-dark: #45a049;
+  --accent-color: #7e57c2;
+  --bg-dark: #1a1a1a;
+  --panel-bg: rgba(30, 30, 30, 0.95);
+  --text-light: #ffffff;
+  --text-dim: #a0a0a0;
+  --cat-lair-color: #4CAF50;
+  --reactor-color: #2196F3;
+  --amplifier-color: #9C27B0;
+  --incubator-color: #FF5722;
+  --incubator-level2-color: #E64A19;
+  --fomo-hit-color: #FF3D00;
+  --eggs-color: #FFD700;
+  --pet-color: #FFD700;
+}
+
+/* Make sure elements stay visible within the viewport */
+html, body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Orbitron", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Fix scrolling container to prevent need to scroll */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  position: relative;
+}
+
+/* Telegram login modal */
+.telegram-login-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--panel-bg);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  max-width: 400px;
+  text-align: center;
+}
+
+.telegram-login-modal h2 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-family: "Orbitron", sans-serif;
+}
+
+/* Burger menu button */
+.mobile-menu-btn {
+  display: none; /* hidden on desktop by default */
+  background: var(--accent-color);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  z-index: 10001; /* Highest z-index */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  margin: 0;
+  width: auto !important;
+}
+
+.game-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  max-height: 700px;
+}
+
+.side-panel {
+  background: rgba(40, 40, 40, 0.95);
+  padding: 20px;
+  width: 300px;
+  min-width: 300px;
+  height: 600px;
+  border-radius: 10px 0 0 10px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.hud {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.resource {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+.resource:hover {
+  transform: translateX(5px);
+}
+.resource-icon {
+  font-size: 1.2em;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+}
+.resource-value {
+  font-family: "Orbitron", sans-serif;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+  margin-left: auto;
+}
+
+/* Egg icon animation */
+@keyframes egg-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.resource-icon.egg {
+  animation: egg-pulse 2s infinite ease-in-out;
+}
+
+/* Eggs resource color */
+.resource-eggs {
+  color: var(--eggs-color) !important;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
+}
+button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+button:hover:not(.disabled)::after {
+  transform: translateX(100%);
+  transition: transform 0.5s ease;
+}
+button:active:not(.disabled) {
+  transform: translateY(0);
+}
+button.disabled, button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+  background: #555 !important; /* Force grey background for clarity */
+}
+
+#gameCanvas {
+  border-radius: 0 10px 10px 0;
+  flex: 1;
+  height: 600px;
+  margin-bottom: 60px; /* UPDATED: Add space for help button underneath */
+}
+
+/* Welcome message */
+.welcome-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--panel-bg);
+  color: var(--text-light);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  max-width: 600px;
+  text-align: left;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.welcome-message h1 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.welcome-message ul {
+  padding-left: 20px;
+  margin-bottom: 30px;
+}
+.welcome-message li {
+  margin: 15px 0;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.welcome-message li strong {
+  color: var(--accent-color);
+  font-family: "Orbitron", sans-serif;
+}
+
+.panel-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+  padding-bottom: 10px;
+}
+.key {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--accent-color);
+  border-radius: 4px;
+  font-family: "Orbitron", sans-serif;
+  color: white;
+  margin: 0 2px;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--primary-color); }
+  50% { box-shadow: 0 0 20px var(--primary-color); }
+  100% { box-shadow: 0 0 5px var(--primary-color); }
+}
+.glow-effect {
+  animation: glow 2s infinite;
+}
+
+/* MOBILE MINI-HUD (responsive approach) */
+.mobile-hud {
+  display: none; /* hidden on desktop or wide screens by default */
+}
+
+/* Game sections styling */
+#building-panel, #level-up-panel {
+  margin-bottom: 20px;
+}
+
+/* Colored buttons by machine type */
+button[id^="build-catLair"], button[id^="level-up-catLair"] {
+  background: linear-gradient(135deg, var(--cat-lair-color), darkgreen);
+}
+
+button[id^="build-reactor"], button[id^="level-up-reactor"] {
+  background: linear-gradient(135deg, var(--reactor-color), darkblue);
+}
+
+button[id^="build-amplifier"], button[id^="level-up-amplifier"] {
+  background: linear-gradient(135deg, var(--amplifier-color), darkmagenta);
+}
+
+/* Incubator button styling */
+button[id^="build-incubator"], button[id^="level-up-incubator"] {
+  background: linear-gradient(135deg, var(--incubator-color), #E64A19);
+}
+
+/* FOMO HIT button styling */
+button[id^="build-fomoHit"], button[id^="level-up-fomoHit"] {
+  background: linear-gradient(135deg, var(--fomo-hit-color), #D32F2F);
+}
+
+/* Accordion-style side panel */
+.machine-controls {
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.accordion-section {
+  margin-bottom: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.4);
+}
+
+.accordion-header {
+  cursor: pointer;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+}
+
+.accordion-header:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.accordion-header h3 {
+  margin: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* FIXED: Solid background for accordion content */
+.accordion-content {
+  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(25, 25, 25, 0.98) !important; /* Solid dark background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Machine button styling */
+.machine-button-container {
+  margin-bottom: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(35, 35, 35, 0.98) !important; /* Slightly lighter than accordion */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.machine-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 8px 8px 0 0;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  font-size: 14px;
+  position: relative;
+}
+
+.machine-button:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.machine-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.machine-icon {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.machine-name {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.machine-cost {
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  position: absolute;
+  right: 10px;
+}
+
+.requirement-text {
+  margin-top: 5px;
+  padding: 3px 8px;
+  color: #ff6b6b;
+  font-style: italic;
+  font-size: 11px;
+  text-align: center;
+}
+
+.requirement-text.critical {
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+  margin: 5px auto;
+  width: auto;
+}
+
+/* Machine type specific colors */
+.machine-catLair {
+  background: linear-gradient(135deg, var(--cat-lair-color), darkgreen);
+}
+
+.machine-reactor {
+  background: linear-gradient(135deg, var(--reactor-color), darkblue);
+}
+
+.machine-amplifier {
+  background: linear-gradient(135deg, var(--amplifier-color), darkmagenta);
+}
+
+.machine-incubator {
+  background: linear-gradient(135deg, var(--incubator-color), #E64A19);
+}
+
+.machine-fomoHit {
+  background: linear-gradient(135deg, var(--fomo-hit-color), #D32F2F);
+}
+
+/* Machine group styling for upgrades */
+.machine-group {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(35, 35, 35, 0.98) !important; /* FIXED: Solid background */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.machine-group-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.machine-item {
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.machine-level {
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: var(--text-dim);
+}
+
+.upgrade-button {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upgrade-button:hover {
+  filter: brightness(1.2);
+}
+
+.special-action {
+  background: linear-gradient(135deg, var(--fomo-hit-color), #D32F2F);
+  font-weight: bold;
+}
+
+/* Transaction progress styles */
+.transaction-progress {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--fomo-hit-color);
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+/* Animation for the spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--fomo-hit-color);
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+/* Extra box for low TCorvax messages */
+.low-corvax-message {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 30, 0.95);
+  padding: 20px;
+  color: #fff;
+  border-radius: 12px;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 8px 32px rgba(76,175,80,0.4);
+  max-width: 400px;
+  z-index: 10010;
+  text-align: center;
+}
+.low-corvax-message a {
+  color: #ffcc00;
+  text-decoration: underline;
+}
+
+/* ===== HELP BUTTON STYLING - UPDATED ===== */
+/* Base help button styles */
+.help-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+  border: none;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
+}
+
+/* Desktop positioning */
+@media (min-width: 769px) {
+  .help-button {
+    bottom: 100px; /* Fixed position instead of transform */
+  }
+  
+  /* Fixed hover state that won't conflict */
+  .help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+  }
+}
+
+/* Mobile positioning */
+@media (max-width: 768px) {
+  .help-button {
+    bottom: 70px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .help-button:hover {
+    transform: scale(1.1);
+  }
+}
+
+.help-modal .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  width: auto;
+  padding: 5px;
+  margin: 0;
+}
+
+/* ===== CUSTOM RADIX WRAPPER STYLING ===== */
+/* Desktop Radix Button Container */
+.radix-connect-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom mobile button styles */
+.custom-radix-button {
+  position: fixed;
+  top: 10px;
+  right: 60px;
+  z-index: 10000;
+  background-color: rgba(25, 118, 210, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: auto;
+  min-width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-radix-button.connected {
+  background-color: rgba(76, 175, 80, 0.9);
+}
+
+/* Custom dialog backdrop */
+.custom-dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Custom dialog content */
+.custom-dialog-content {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 90%;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 2px solid rgba(76, 175, 80, 0.5);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+}
+
+/* ===== ROOM NAVIGATION STYLES ===== */
+
+/* Room navigation buttons */
+.room-navigation {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.room-nav-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.room-nav-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+}
+
+.room-nav-button.prev {
+  background-color: #FF5722;
+}
+
+.room-nav-button.next {
+  background-color: #2196F3;
+}
+
+.room-indicator {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-family: "Orbitron", sans-serif;
+  margin-top: 5px;
+  text-align: center;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Room unlock message */
+.room-unlock-message h2 {
+  color: #4CAF50;
+  margin-bottom: 15px;
+}
+
+.room-unlock-message ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.room-unlock-message li {
+  margin: 8px 0;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  font-family: "Orbitron", sans-serif;
+}
+
+.room-unlock-message li:nth-child(1) {
+  border-left: 4px solid var(--cat-lair-color);
+}
+
+.room-unlock-message li:nth-child(2) {
+  border-left: 4px solid var(--reactor-color);
+}
+
+.room-unlock-message li:nth-child(3) {
+  border-left: 4px solid var(--amplifier-color);
+}
+
+/* ===== MOVE MACHINES SECTION ===== */
+.machine-move-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Selected machine highlighting */
+.move-button.selected {
+  background-color: #FFD700 !important;
+  color: black !important;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.move-button {
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+  min-height: unset !important;
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.move-info {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.move-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Move confirmation dialog */
+.move-confirmation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(30, 30, 30, 0.95);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.move-confirmation h3 {
+  margin: 0 0 15px 0;
+  color: #FFD700;
+}
+
+.move-confirmation p {
+  margin: 10px 0;
+}
+
+.move-confirmation .cost {
+  font-weight: bold;
+  color: #FF5722;
+}
+
+.move-confirmation .buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.move-confirmation button {
+  flex: 1;
+}
+
+.move-confirmation button:first-child {
+  margin-right: 10px;
+  background-color: #333;
+}
+
+.move-confirmation button:last-child {
+  background-color: #4CAF50;
+}
+
+/* Incubator rewards styling */
+.incubator-rewards {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reward-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reward-item:last-child {
+  border-bottom: none;
+}
+
+.reward-value {
+  font-weight: bold;
+}
+
+.reward-tcorvax {
+  color: #4CAF50;
+}
+
+.reward-eggs {
+  color: #FFD700;
+}
+
+.reward-base {
+  color: #FF5722;
+}
+
+.reward-bonus {
+  color: #E64A19;
+}
+
+.reward-total {
+  font-size: 1.1em;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ===== PET RELATED STYLES ===== */
+
+/* Pet buy prompt */
+.pet-buy-prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--panel-bg);
+  color: var(--text-light);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+}
+
+.pet-buy-prompt h2 {
+  color: #FFD700;
+  margin-bottom: 15px;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pet-image-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.pet-preview {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+  animation: pet-float 3s infinite ease-in-out;
+}
+
+@keyframes pet-float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.pet-cost {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 10px;
+  margin: 15px 0;
+}
+
+.pet-buy-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.pet-buy-actions button {
+  width: 48%;
+}
+
+/* Pet interaction menu */
+.pet-interaction-menu {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--panel-bg);
+  color: var(--text-light);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+}
+
+.pet-interaction-menu h2 {
+  color: #FFD700;
+  margin-bottom: 15px;
+  font-family: "Orbitron", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pet-interaction-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pet-action-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.pet-action-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 12px;
+}
+
+.pet-action-buttons .icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.wallet-status {
+  margin-top: 15px;
+  font-size: 12px;
+}
+
+.wallet-warning {
+  color: #FF5722;
+  font-style: italic;
+}
+
+/* ===== MOBILE OPTIMIZATION ===== */
+@media (max-width: 768px) {
+  /* Make eggs fit in mobile HUD */
+  .mobile-hud {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    position: fixed;
+    top: 60px !important; /* Below buttons */
+    left: 10px !important;
+    right: 10px !important;
+    height: auto !important;
+    min-height: 40px !important;
+    z-index: 9000 !important;
+    padding: 5px !important;
+    background: rgba(0, 0, 0, 0.95) !important; /* Solid background */
+    border-radius: 10px;
+    margin: 0 !important;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-resource {
+    flex: 0 0 calc(50% - 10px) !important;
+    font-family: "Orbitron", sans-serif !important;
+    font-size: 12px !important;
+    color: var(--primary-color) !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    margin: 3px !important;
+    padding: 3px !important;
+  }
+  
+  /* Better spacing for Move Machines on mobile */
+  .machine-move-controls {
+    padding-bottom: 20px;
+  }
+  
+  .move-button {
+    padding: 8px 10px !important; /* Larger touch target */
+  }
+  
+  /* Make sure confirmation dialogs are readable */
+  .move-confirmation {
+    width: 95%;
+    max-width: 320px;
+    padding: 15px;
+  }
+  
+  /* Increased size of confirmation buttons for better touch */
+  .move-confirmation .buttons button {
+    padding: 12px 5px !important;
+    font-size: 14px !important;
+  }
+  
+  /* Room navigation for mobile */
+  .room-navigation {
+    right: 10px;
+    z-index: 9500;
+  }
+  
+  .room-nav-button {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .room-indicator {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  /* Ensure burger menu stays on top */
+  .mobile-menu-btn {
+    display: block;
+    padding: 8px 12px;
+    font-size: 1em;
+    z-index: 10001; /* Highest z-index */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    position: fixed;
+    top: 10px;
+    left: 10px;
+  }
+
+  /* Fixed side panel starts right below the burger button */
+  .game-container.mobile .side-panel {
+    position: fixed;
+    top: 46px; /* Position it right below the burger button */
+    left: 0;
+    transform: translateX(-100%);
+    width: 85vw;
+    height: calc(100vh - 46px); /* Adjusted height to start below burger */
+    max-height: calc(100vh - 46px);
+    overflow-y: auto !important; /* FIXED: Make sure it's scrollable */
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 10px 10px 0;
+    padding: 10px 8px;
+    z-index: 9999; /* Lower than burger but higher than others */
+  }
+
+  .game-container.mobile .side-panel.open {
+    transform: translateX(0);
+  }
+
+  /* Hide desktop Radix button on mobile */
+  .radix-connect-wrapper {
+    display: none !important;
+  }
+
+  #gameCanvas {
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0; /* Reset margin for mobile */
+  }
+  
+  /* FIXED: Fix scrolling by making the outer container scroll only */
+  .accordion-content {
+    max-height: none !important; /* Remove max-height */
+    overflow-y: visible !important; /* Disable individual scrolling */
+  }
+  
+  /* FIXED: Ensure machine-controls doesn't scroll either */
+  .machine-controls {
+    overflow-y: visible !important; /* Disable scrolling */
+    max-height: none !important; /* Remove height limit */
+  }
+  
+  /* FIXED: Remove scroll indicator since we don't need it anymore */
+  .machine-controls::after {
+    display: none !important;
+  }
+  
+  /* FIXED: Add more space at the bottom for better scrolling */
+  .side-panel::after {
+    content: "";
+    display: block;
+    height: 80px; /* Extra space at bottom */
+  }
+  
+  /* Improve padding on mobile for better touch targets */
+  .machine-button {
+    padding: 12px 8px !important; /* Slightly more vertical padding */
+  }
+  
+  .machine-group-header, 
+  .machine-item {
+    padding: 12px !important; /* More padding for touch */
+  }
+  
+  /* Add more spacing between accordion sections */
+  .accordion-section {
+    margin-bottom: 20px !important;
+  }
+  
+  /* Reduce sizes in accordion */
+  .accordion-header {
+    padding: 6px 10px;
+  }
+  
+  .accordion-header h3 {
+    font-size: 14px;
+  }
+  
+  /* Compact buttons and text */
+  .machine-button-container {
+    margin-bottom: 8px;
+  }
+  
+  /* Hide unnecessary text */
+  .requirement-text:not(.critical) {
+    display: none;
+  }
+  
+  /* Make machine groups more compact */
+  .machine-group {
+    margin-bottom: 8px;
+  }
+  
+  .machine-level {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  
+  .upgrade-button {
+    padding: 6px;
+    font-size: 11px;
+  }
+  
+  /* Welcome message smaller on mobile */
+  .welcome-message {
+    padding: 20px;
+    width: 90%;
+    max-width: 90%;
+  }
+
+  /* Custom mobile Radix dialog */
+  .custom-dialog-content {
+    padding: 15px;
+    font-size: 14px;
+  }
+  
+  /* Pet-related mobile optimization */
+  .pet-buy-prompt, 
+  .pet-interaction-menu {
+    padding: 20px;
+    width: 95%;
+    max-width: 340px;
+  }
+  
+  .pet-preview {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .pet-action-buttons button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
