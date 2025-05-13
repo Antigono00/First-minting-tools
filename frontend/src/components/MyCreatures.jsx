@@ -4,6 +4,9 @@ import { useRadixConnect } from '../context/RadixConnectContext';
 import { GameContext } from '../context/GameContext';
 import NFTService from '../utils/NFTService';
 
+// SVG placeholder for missing images
+const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23f0f0f0' stroke='%23ccc' stroke-width='2'/%3E%3Ctext x='50' y='55' font-family='Arial' font-size='14' text-anchor='middle' fill='%23888'%3EEgg%3C/text%3E%3C/svg%3E";
+
 const MyCreatures = ({ onClose }) => {
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +16,14 @@ const MyCreatures = ({ onClose }) => {
 
   const { connected, accounts } = useRadixConnect();
   const { addNotification } = useContext(GameContext);
+
+  // Debug log when NFTs are loaded
+  useEffect(() => {
+    if (nfts.length > 0) {
+      console.log("NFTs loaded:", nfts.length);
+      console.log("First NFT sample:", nfts[0]);
+    }
+  }, [nfts]);
 
   useEffect(() => {
     // Load user's NFTs when component mounts or account changes
@@ -96,9 +107,14 @@ const MyCreatures = ({ onClose }) => {
           >
             <div className="nft-image-container">
               <img 
-                src={nft.image_url || '/assets/default_egg.png'} 
-                alt={nft.species_name} 
+                src={nft.image_url || PLACEHOLDER_SVG} 
+                alt={nft.species_name || 'Creature'} 
                 className="nft-image"
+                onError={(e) => {
+                  console.error(`Failed to load NFT image: ${nft.image_url}`);
+                  e.target.src = PLACEHOLDER_SVG;
+                  e.target.onerror = null;
+                }}
               />
               <div className="nft-rarity-badge" style={{
                 backgroundColor: getRarityColor(nft.rarity)
@@ -121,18 +137,20 @@ const MyCreatures = ({ onClose }) => {
   const renderDetailView = () => {
     if (!selectedNft) return null;
 
+    // Destructure needed properties from selectedNft
     const { 
       species_name, 
       rarity, 
       form, 
-      image_url, 
       stats, 
       evolution_progress, 
       combination_level,
-      display_form,
-      display_stats
+      display_form
     } = selectedNft;
 
+    // Get image_url separately to avoid the "never read" warning
+    const nftImageUrl = selectedNft.image_url;
+    
     // Helper function to determine if the creature can be evolved
     const canEvolve = evolution_progress?.stat_upgrades_completed >= 3 && form < 3;
     
@@ -154,9 +172,14 @@ const MyCreatures = ({ onClose }) => {
         <div className="nft-detail-content">
           <div className="nft-detail-image-container">
             <img 
-              src={image_url || '/assets/default_egg.png'} 
-              alt={species_name} 
+              src={nftImageUrl || PLACEHOLDER_SVG} 
+              alt={species_name || 'Creature'} 
               className="nft-detail-image"
+              onError={(e) => {
+                console.error(`Failed to load NFT detail image: ${nftImageUrl}`);
+                e.target.src = PLACEHOLDER_SVG;
+                e.target.onerror = null;
+              }}
             />
             <div className="nft-detail-rarity-badge" style={{
               backgroundColor: getRarityColor(rarity)
